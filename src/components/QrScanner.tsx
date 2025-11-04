@@ -2,6 +2,18 @@ import React from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { toast } from "sonner";
 
+interface IBoundingBox {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+interface IPoint {
+    x: number;
+    y: number;
+}
+
 interface IDetectedBarcode {
     boundingBox: IBoundingBox;
     cornerPoints: IPoint[];
@@ -19,6 +31,7 @@ export default function QrScanner({ onResult }: QrScannerProps) {
     const [hasScanned, setHasScanned] = React.useState(false);
 
     const handleResult = (detectedCodes: IDetectedBarcode[]) => {
+        console.log(result);
         detectedCodes.forEach((code) => {
             setResult(code.rawValue);
             onResult?.(code.rawValue);

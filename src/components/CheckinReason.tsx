@@ -1,4 +1,3 @@
-import React from "react";
 import clsx from "clsx";
 import { Button } from "./ui/button";
 
@@ -11,11 +10,9 @@ const activitiesData = [
 
 export default function CheckinReason({
     selectedActivityId,
-    highlightTextPrimary,
     onSelectionChange,
 }: {
     selectedActivityId?: number | null;
-    highlightTextPrimary?: boolean;
     onSelectionChange?: (
         hasSelection: boolean,
         activityId?: number | null
