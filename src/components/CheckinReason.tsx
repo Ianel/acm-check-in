@@ -36,7 +36,8 @@ export default function CheckinReason({
                             key={a.id}
                             className={clsx(
                                 isSelected && "bg-primary text-white",
-                                "transition-colors"
+                                "transition-colors",
+                                "hover:text-white"
                             )}
                             onClick={() => handleClick(a.id)}
                             variant={"outline"}
