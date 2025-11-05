@@ -6,6 +6,8 @@ import CheckinReason from "./CheckinReason";
 import CheckoutTime from "./CheckoutTime";
 import QrScanner from "./QrScanner";
 import { format } from "date-fns";
+import { API_URL } from "@/constants/url";
+import { toast } from "sonner";
 
 const { Stepper } = defineStepper(
     {
@@ -37,6 +39,8 @@ export function StepperWithLabel() {
     const [step1Done, setStep1Done] = React.useState(false);
     const [step2Done, setStep2Done] = React.useState(false);
     const [step3Done, setStep3Done] = React.useState(false);
+
+    const [hasScanned, setHasScanned] = React.useState(false);
 
     // UI flags
     const [highlightTextPrimary, setHighlightTextPrimary] =
@@ -108,9 +112,6 @@ export function StepperWithLabel() {
                                     "step-1": () => (
                                         <CheckinReason
                                             selectedActivityId={activityId}
-                                            highlightTextPrimary={
-                                                highlightTextPrimary
-                                            }
                                             onSelectionChange={(has, id) => {
                                                 setStep1Done(has);
                                                 setActivityId(id ?? null);
@@ -140,8 +141,62 @@ export function StepperWithLabel() {
                                     "step-3": () => (
                                         <QrScanner
                                             onResult={(text) => {
-                                                setMatricule(text);
-                                                setStep3Done(!!text);
+                                                const matricule =
+                                                    text.split("reg=")[1];
+                                                console.log(matricule);
+
+                                                fetch(
+                                                    `${API_URL}/api/member/reg/${matricule}`
+                                                )
+                                                    .then((response) =>
+                                                        response.json()
+                                                    )
+                                                    .then((data) => {
+                                                        if (data.success) {
+                                                            if (!hasScanned) {
+                                                                toast(
+                                                                    "QR Code scanned successfully",
+                                                                    {
+                                                                        description:
+                                                                            "You can now enter the ACM.",
+                                                                        position:
+                                                                            "top-center",
+                                                                    }
+                                                                );
+                                                                setHasScanned(
+                                                                    true
+                                                                );
+                                                            }
+
+                                                            setMatricule(
+                                                                matricule
+                                                            );
+                                                            setStep3Done(
+                                                                !!matricule
+                                                            );
+                                                        } else {
+                                                            toast(
+                                                                "You're not a member",
+
+                                                                {
+                                                                    description:
+                                                                        "Please, use a valid member card!",
+                                                                    position:
+                                                                        "top-center",
+                                                                }
+                                                            );
+                                                        }
+                                                    })
+                                                    .catch((error) => {
+                                                        toast(
+                                                            "An error occurred" +
+                                                                error,
+                                                            {
+                                                                position:
+                                                                    "top-center",
+                                                            }
+                                                        );
+                                                    });
                                             }}
                                         />
                                     ),

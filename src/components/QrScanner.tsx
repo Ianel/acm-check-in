@@ -28,7 +28,6 @@ export type QrScannerProps = {
 export default function QrScanner({ onResult }: QrScannerProps) {
     const [result, setResult] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
-    const [hasScanned, setHasScanned] = React.useState(false);
 
     const handleResult = (detectedCodes: IDetectedBarcode[]) => {
         console.log(result);
@@ -37,12 +36,12 @@ export default function QrScanner({ onResult }: QrScannerProps) {
             onResult?.(code.rawValue);
         });
 
-        if (!hasScanned) {
+        /*   if (!hasScanned) {
             toast("QR Code scanned successfully", {
                 position: "top-center",
             });
             setHasScanned(true);
-        }
+        } */
     };
 
     const handleError = (error: any) => {
