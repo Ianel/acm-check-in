@@ -8,19 +8,27 @@ import QrScanner from "./QrScanner";
 import { format } from "date-fns";
 import { API_URL } from "@/constants/url";
 import { toast } from "sonner";
+import { Spinner } from "./ui/spinner";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "./ui/dialog";
 
 const { Stepper } = defineStepper(
     {
         id: "step-1",
-        title: "Why ?",
+        title: "Purpose of visit",
     },
     {
         id: "step-2",
-        title: "How long ?",
+        title: "Checkout time",
     },
     {
         id: "step-3",
-        title: "Who ?",
+        title: "Member Card scan",
     }
 );
 
@@ -42,8 +50,24 @@ export function StepperWithLabel() {
 
     const [hasScanned, setHasScanned] = React.useState(false);
 
+    const [isVerifying, setIsVerifying] = React.useState(false);
+
     return (
         <div className="flex w-full flex-col gap-8">
+            <Dialog open={isVerifying}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {" "}
+                            <Spinner /> Verifying your informations
+                        </DialogTitle>
+                        <DialogDescription>
+                            Please wait during the verification of your
+                            informations.
+                        </DialogDescription>
+                    </DialogHeader>
+                </DialogContent>
+            </Dialog>
             <Stepper.Provider
                 className="space-y-4"
                 variant="horizontal"
@@ -134,6 +158,8 @@ export function StepperWithLabel() {
                                     "step-3": () => (
                                         <QrScanner
                                             onResult={(text) => {
+                                                setIsVerifying(true);
+
                                                 const matricule =
                                                     text.split("reg=")[1];
                                                 console.log(matricule);
@@ -145,21 +171,17 @@ export function StepperWithLabel() {
                                                         response.json()
                                                     )
                                                     .then((data) => {
+                                                        setIsVerifying(false);
                                                         if (data.success) {
-                                                            if (!hasScanned) {
-                                                                toast(
-                                                                    "QR Code scanned successfully",
-                                                                    {
-                                                                        description:
-                                                                            "You can now enter the ACM.",
-                                                                        position:
-                                                                            "top-center",
-                                                                    }
-                                                                );
-                                                                setHasScanned(
-                                                                    true
-                                                                );
-                                                            }
+                                                            toast(
+                                                                "QR Code scanned successfully",
+                                                                {
+                                                                    description:
+                                                                        "You can now enter the ACM.",
+                                                                    position:
+                                                                        "top-center",
+                                                                }
+                                                            );
 
                                                             setMatricule(
                                                                 matricule
@@ -167,6 +189,13 @@ export function StepperWithLabel() {
                                                             setStep3Done(
                                                                 !!matricule
                                                             );
+
+                                                            onFinish();
+
+                                                            /*   setTimeout(
+                                                                onFinish,
+                                                                8000
+                                                            ); */
                                                         } else {
                                                             toast(
                                                                 "You're not a member",
@@ -195,29 +224,32 @@ export function StepperWithLabel() {
                                     ),
                                 })}
                             </section>
-                            <Stepper.Controls className="mt-24">
+                            <Stepper.Controls className="mt-10">
                                 {!methods.isLast && (
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        onClick={() => {
-                                            // when going back from step-3, we purposely keep checkoutDateObj so CheckinTime retains the value
-                                            methods.prev();
-                                        }}
-                                        disabled={methods.isFirst}
-                                    >
-                                        Previous
-                                    </Button>
+                                    <>
+                                        {" "}
+                                        <Button
+                                            className="px-8 py-6"
+                                            type="button"
+                                            variant="secondary"
+                                            onClick={() => {
+                                                // when going back from step-3, we purposely keep checkoutDateObj so CheckinTime retains the value
+                                                methods.prev();
+                                            }}
+                                            disabled={methods.isFirst}
+                                        >
+                                            Previous
+                                        </Button>
+                                        <Button
+                                            className="px-8 py-6"
+                                            onClick={methods.next}
+                                            // disable Next/Finish unless current step is completed
+                                            disabled={!currentCompleted}
+                                        >
+                                            Next
+                                        </Button>
+                                    </>
                                 )}
-                                <Button
-                                    onClick={
-                                        methods.isLast ? onFinish : methods.next
-                                    }
-                                    // disable Next/Finish unless current step is completed
-                                    disabled={!currentCompleted}
-                                >
-                                    {methods.isLast ? "Finish" : "Next"}
-                                </Button>
                             </Stepper.Controls>
                         </React.Fragment>
                     );

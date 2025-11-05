@@ -27,12 +27,15 @@ export type QrScannerProps = {
 export default function QrScanner({ onResult }: QrScannerProps) {
     const [result, setResult] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
+    const [isPaused, setIsPaused] = React.useState<boolean>(false);
 
     const handleResult = (detectedCodes: IDetectedBarcode[]) => {
         console.log(result);
+
         detectedCodes.forEach((code) => {
             setResult(code.rawValue);
             onResult?.(code.rawValue);
+            setIsPaused(/^ACM[0-9]{1,}/.test(code.rawValue.split("reg=")[1]));
         });
 
         /*   if (!hasScanned) {
@@ -51,8 +54,12 @@ export default function QrScanner({ onResult }: QrScannerProps) {
     return (
         <div className="flex flex-col items-center gap-4">
             <div className="w-full max-w-md">
-                <div className="relative w-full h-96 bg-black rounded overflow-hidden">
-                    <Scanner onScan={handleResult} onError={handleError} />
+                <div className="relative w-full h-96 lg:h-64 bg-black rounded overflow-hidden">
+                    <Scanner
+                        paused={isPaused}
+                        onScan={handleResult}
+                        onError={handleError}
+                    />
                 </div>
             </div>
 

@@ -28,7 +28,7 @@ export default function CheckinReason({
         <section className="flex flex-col items-center">
             <h2>Please, choose from the list of activities below: </h2>
             <br />
-            <div className="flex flex-wrap gap-8">
+            <div className="flex justify-center flex-wrap gap-8">
                 {activitiesData.map((a) => {
                     const isSelected = selectedActivityId === a.id;
                     return (
@@ -36,8 +36,7 @@ export default function CheckinReason({
                             key={a.id}
                             className={clsx(
                                 isSelected && "bg-primary text-white",
-                                "transition-colors",
-                                "hover:text-white"
+                                "transition-colors hover:bg-primary active:bg-primary px-10 py-8 hover:text-white"
                             )}
                             onClick={() => handleClick(a.id)}
                             variant={"outline"}
