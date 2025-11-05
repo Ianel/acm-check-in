@@ -48,8 +48,6 @@ export function StepperWithLabel() {
     const [step2Done, setStep2Done] = React.useState(false);
     const [step3Done, setStep3Done] = React.useState(false);
 
-    const [hasScanned, setHasScanned] = React.useState(false);
-
     const [isVerifying, setIsVerifying] = React.useState(false);
 
     return (
@@ -191,11 +189,6 @@ export function StepperWithLabel() {
                                                             );
 
                                                             onFinish();
-
-                                                            /*   setTimeout(
-                                                                onFinish,
-                                                                8000
-                                                            ); */
                                                         } else {
                                                             toast(
                                                                 "You're not a member",
