@@ -1,6 +1,5 @@
 import React from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import { toast } from "sonner";
 
 interface IBoundingBox {
     x: number;

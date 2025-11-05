@@ -42,10 +42,6 @@ export function StepperWithLabel() {
 
     const [hasScanned, setHasScanned] = React.useState(false);
 
-    // UI flags
-    const [highlightTextPrimary, setHighlightTextPrimary] =
-        React.useState(false);
-
     return (
         <div className="flex w-full flex-col gap-8">
             <Stepper.Provider
@@ -89,7 +85,6 @@ export function StepperWithLabel() {
                         setStep1Done(false);
                         setStep2Done(false);
                         setStep3Done(false);
-                        setHighlightTextPrimary(false);
                     };
 
                     return (
@@ -115,8 +110,6 @@ export function StepperWithLabel() {
                                             onSelectionChange={(has, id) => {
                                                 setStep1Done(has);
                                                 setActivityId(id ?? null);
-                                                // once user explicitly selects, stop special highlight
-                                                setHighlightTextPrimary(false);
                                             }}
                                         />
                                     ),
@@ -208,12 +201,6 @@ export function StepperWithLabel() {
                                         type="button"
                                         variant="secondary"
                                         onClick={() => {
-                                            // If we're on step-2 and user clicks Previous, highlight the selected button on step-1
-                                            if (currentStepId === "step-2") {
-                                                setHighlightTextPrimary(true);
-                                            } else {
-                                                setHighlightTextPrimary(false);
-                                            }
                                             // when going back from step-3, we purposely keep checkoutDateObj so CheckinTime retains the value
                                             methods.prev();
                                         }}
