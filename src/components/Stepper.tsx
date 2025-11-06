@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import CheckinReason from "./CheckinReason";
 import CheckoutTime from "./CheckoutTime";
 import QrScanner from "./QrScanner";
-import { format } from "date-fns";
+import { addHours } from "date-fns";
 import { API_URL } from "@/constants/url";
 import { toast } from "sonner";
 import { Spinner } from "./ui/spinner";
@@ -72,6 +72,7 @@ export function StepperWithLabel() {
                 labelOrientation="vertical"
             >
                 {({ methods }) => {
+                    console.log(matricule, expectedCheckoutTime);
                     // determine whether current step is completed
                     const currentStepId =
                         methods.current?.id ?? methods.all[0].id;
@@ -82,22 +83,44 @@ export function StepperWithLabel() {
                             ? step2Done
                             : step3Done;
 
-                    const onFinish = () => {
+                    const onFinish = (paramMatricule: string) => {
+                        // Get current date-time and add 3 hours for UTC+3
+                        const now = addHours(new Date(), 3);
+
+                        // Parse and adjust checkout time to UTC+3
+                        const checkoutDate = checkoutDateObj
+                            ? addHours(checkoutDateObj, 3)
+                            : null;
+
                         // build payload as requested
                         const payload = {
-                            activity_id: activityId ?? null,
-                            // check_in_time should use same format as expected_checkout_time
-                            check_in_time: format(new Date(), "hh:mm a"),
-                            expected_checkout_time:
-                                expectedCheckoutTime ?? null,
+                            activityId: activityId ?? null,
+                            checkInTime: now.toISOString(),
+                            checkOutTime: checkoutDate?.toISOString() ?? null,
                             // matricule must be a string
-                            matricule: matricule ?? "",
+                            registrationNumber: paramMatricule ?? "",
+                            visitReason: null,
                         };
                         // send/print payload
                         console.log(
                             "Finish payload:",
                             JSON.stringify(payload, null, 2)
                         );
+
+                        fetch(`${API_URL}/api/checkin`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(payload),
+                        })
+                            .then((response) => response.json())
+                            .then((data) => {
+                                if (data.success) {
+                                    console.log(data.message);
+                                }
+                            });
+
                         // reset stepper and local state
                         methods.reset();
                         setActivityId(null);
@@ -158,12 +181,12 @@ export function StepperWithLabel() {
                                             onResult={(text) => {
                                                 setIsVerifying(true);
 
-                                                const matricule =
+                                                const _matricule =
                                                     text.split("reg=")[1];
-                                                console.log(matricule);
+                                                console.log(_matricule);
 
                                                 fetch(
-                                                    `${API_URL}/api/member/reg/${matricule}`
+                                                    `${API_URL}/api/member/reg/${_matricule}`
                                                 )
                                                     .then((response) =>
                                                         response.json()
@@ -182,13 +205,15 @@ export function StepperWithLabel() {
                                                             );
 
                                                             setMatricule(
-                                                                matricule
+                                                                _matricule
                                                             );
                                                             setStep3Done(
-                                                                !!matricule
+                                                                !!_matricule
                                                             );
 
-                                                            onFinish();
+                                                            onFinish(
+                                                                _matricule
+                                                            );
                                                         } else {
                                                             toast(
                                                                 "You're not a member",
