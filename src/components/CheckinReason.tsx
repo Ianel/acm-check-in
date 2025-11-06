@@ -1,12 +1,18 @@
 import clsx from "clsx";
 import { Button } from "./ui/button";
+import { useEffect, useState } from "react";
+import { API_URL } from "@/constants/url";
 
-const activitiesData = [
-    { id: 1, label: "STEM Club" },
-    { id: 2, label: "Conversation class" },
-    { id: 3, label: "Books" },
-    { id: 4, label: "Internet" },
-];
+type Activity = {
+    id: number;
+    name: string;
+    description: string;
+    image?: string;
+    isActive: boolean;
+    createdBy: number;
+    createdAt: Date;
+    updatedAt: Date;
+};
 
 export default function CheckinReason({
     selectedActivityId,
@@ -18,18 +24,43 @@ export default function CheckinReason({
         activityId?: number | null
     ) => void;
 }) {
+    const [activities, setActivities] = useState<Activity[]>([]);
+
     const handleClick = (id: number) => {
         const isSelected = selectedActivityId === id;
         const newSelected = isSelected ? null : id;
         onSelectionChange?.(!!newSelected, newSelected);
     };
 
+    useEffect(() => {
+        const fetchActivities = async () => {
+            const response = await fetch(`${API_URL}/api/activity`);
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch activities");
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                setActivities(() => {
+                    const activeActivities = data.data.filter(
+                        (act: Activity) => act.isActive
+                    );
+                    return activeActivities;
+                });
+            }
+        };
+
+        fetchActivities();
+    }, []);
+
     return (
         <section className="flex flex-col items-center">
             <h2>Please, choose from the list of activities below: </h2>
             <br />
             <div className="flex justify-center flex-wrap gap-8">
-                {activitiesData.map((a) => {
+                {activities.map((a) => {
                     const isSelected = selectedActivityId === a.id;
                     return (
                         <Button
@@ -43,7 +74,7 @@ export default function CheckinReason({
                             type="button"
                             aria-pressed={isSelected}
                         >
-                            {a.label}
+                            {a.name}
                         </Button>
                     );
                 })}
