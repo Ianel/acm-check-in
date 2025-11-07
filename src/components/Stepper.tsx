@@ -99,7 +99,6 @@ export function StepperWithLabel() {
                             checkOutTime: checkoutDate?.toISOString() ?? null,
                             // matricule must be a string
                             registrationNumber: paramMatricule ?? "",
-                            visitReason: null,
                         };
                         // send/print payload
                         console.log(
