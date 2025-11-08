@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import CheckinReason from "./CheckinReason";
 import CheckoutTime from "./CheckoutTime";
 import QrScanner from "./QrScanner";
-import { addHours } from "date-fns";
 import { API_URL } from "@/constants/url";
 import { toast } from "sonner";
 import { Spinner } from "./ui/spinner";
@@ -85,12 +84,16 @@ export function StepperWithLabel() {
 
                     const onFinish = (paramMatricule: string) => {
                         // Get current date-time and add 3 hours for UTC+3
-                        const now = addHours(new Date(), 3);
+                        //const now = addHours(new Date(), 3);
+                        const now = new Date();
 
                         // Parse and adjust checkout time to UTC+3
-                        const checkoutDate = checkoutDateObj
+                        /*const checkoutDate = checkoutDateObj
                             ? addHours(checkoutDateObj, 3)
                             : null;
+                        */
+
+                        const checkoutDate = checkoutDateObj;
 
                         // build payload as requested
                         const payload = {
